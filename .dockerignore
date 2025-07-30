@@ -1,5 +1,74 @@
-data
-tmp
-results
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+*.pycache
 
-.env
+# Virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VSCode
+.vscode/
+
+models
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+
+# Docker
+Dockerfile*
+docker-compose*
+
+# Git
+.git/
+.gitignore
+
+# Models and data
+models/
+assets/examples/
+
+# Misc
+*.swp
+*.swo
+*.bak
+*.tmp
+*.old
+
+# Ignore local config
+*.local
+*.env
+
+# Ignore compiled files
+*.so
+*.dll
+*.dylib
+
+# Ignore build artifacts
+dist/
+build/
+.eggs/
+*.egg-info/

@@ -5,7 +5,17 @@ ARG TARGETPLATFORM
 ARG NODE_MAJOR=20
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+# 替换为国内源
+RUN cat /etc/apt/sources.list || echo "sources.list 不存在"
+# 直接覆盖为阿里云源
+RUN echo "deb http://mirrors.aliyun.com/debian/ bookworm main contrib non-free\n\
+    deb http://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free\n\
+    deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free" \
+    > /etc/apt/sources.list
+
+# 安装依赖
+RUN apt-get update && \
+    apt-get install -y --fix-missing \
     wget \
     netcat-traditional \
     gnupg \
@@ -93,7 +103,8 @@ COPY . .
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 7788 6080 5901 9222
+EXPOSE 7788 6080 5901 9222 7789
+EXPOSE 8000
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 #CMD ["/bin/bash"]

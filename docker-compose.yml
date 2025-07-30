@@ -1,12 +1,9 @@
 services:
   # debug: docker compose run --rm -it browser-use-webui bash
   browser-use-webui:
+    network_mode: host
     # image: ghcr.io/browser-use/web-ui # Using precompiled image
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        TARGETPLATFORM: ${TARGETPLATFORM:-linux/amd64}
+    image: hyperagi/browser-use-web-ui
     ports:
       - "7788:7788"
       - "6080:6080"
@@ -63,11 +60,9 @@ services:
 
       # VNC Settings
       - VNC_PASSWORD=${VNC_PASSWORD:-youvncpassword}
-
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       # - ./my_chrome_data:/app/data/chrome_data # Optional: persist browser data
-    restart: unless-stopped
     shm_size: '2gb'
     cap_add:
       - SYS_ADMIN
@@ -78,3 +73,37 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+  ollama:
+    network_mode: host
+    image: ollama/ollama
+    ports:
+      - '11434:11434'
+    entrypoint: ["/bin/sh", "-c"]
+    runtime: nvidia
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull qwen2.5:7b
+        ollama pull mxbai-embed-large
+        wait
+    volumes:
+      - ./models:/root/.ollama/models
+  easytier:
+    image: easytier/easytier:latest
+    hostname: easytier
+    container_name: easytier
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TZ=Asia/Shanghai
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./easytier:/root
+      - ./machine-id:/etc/machine-id:ro
+    command: -d --network-name mossai --network-secret mossai@2868 -p tcp://43.159.42.232:11010

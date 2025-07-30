@@ -547,12 +547,22 @@ async def run_agent_task(
             webui_manager.bu_agent.state.agent_id = webui_manager.bu_agent_task_id
             webui_manager.bu_agent.settings.generate_gif = gif_path
         else:
+            # 重用现有agent，但需要重置状态
+            logger.info(f"Reusing existing agent for new task: {task}")
+            # 重置agent状态
             webui_manager.bu_agent.state.agent_id = webui_manager.bu_agent_task_id
-            webui_manager.bu_agent.add_new_task(task)
+            webui_manager.bu_agent.state.stopped = False
+            webui_manager.bu_agent.state.paused = False
+            webui_manager.bu_agent.state.consecutive_failures = 0
+            # 更新任务
+            webui_manager.bu_agent.task = task
             webui_manager.bu_agent.settings.generate_gif = gif_path
             webui_manager.bu_agent.browser = webui_manager.bu_browser
             webui_manager.bu_agent.browser_context = webui_manager.bu_browser_context
             webui_manager.bu_agent.controller = webui_manager.bu_controller
+            # 重新注册回调
+            webui_manager.bu_agent.register_new_step_callback = step_callback_wrapper
+            webui_manager.bu_agent.register_done_callback = done_callback_wrapper
 
         # --- 6. Run Agent Task and Stream Updates ---
         agent_run_coro = webui_manager.bu_agent.run(max_steps=max_steps)
